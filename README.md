@@ -1,3 +1,5 @@
+<img src="./assets/logo.jpg" alt="Pan logo" width="25%" />
+
 # Pan
 Yet another JavaScript runtime powered by Hermes. Pan is built to support [Negatron](https://github.com/hahnlee/negatron)
 
@@ -12,6 +14,7 @@ I hope one day we can write wasm in JS and link it with the electron/tauri API, 
 
 # Goals
 - **Interoperability with Node.js**
+- Support .hbc import and export
 - Support Node.js API
 - Support Node API (N-API)
 - Support CommonJS with Node Module Resolution
