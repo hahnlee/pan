@@ -3,5 +3,9 @@
 version = 3
 
 [[package]]
+name = "hermes"
+version = "0.1.0"
+
+[[package]]
 name = "pan"
 version = "0.1.0"
