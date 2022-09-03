@@ -1,8 +1,11 @@
+include!("bindings.rs");
+
 #[cfg(test)]
 mod tests {
+    use crate::get_bytecode_version;
+
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn check_version() {
+        assert_eq!(get_bytecode_version(), 89);
     }
 }

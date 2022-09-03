@@ -1,31 +1,15 @@
-use std::process::Command;
-
 fn main() {
-    generate_hermes();
-    build_hermes();
-}
+    let dst = cmake::Config::new("binding")
+        .generator("Ninja")
+        .define("CMAKE_BUILD_TYPE", "Release")
+        .build();
 
-fn generate_hermes() {
-    assert!(Command::new("cmake")
-        .args([
-            "-S",
-            "hermes",
-            "-B",
-            "build_release",
-            "-G",
-            "Ninja",
-            "-D",
-            "CMAKE_BUILD_TYPE=Release",
-        ])
-        .status()
-        .unwrap()
-        .success());
-}
+    println!("cargo:rustc-link-search=native={}", dst.display());
+    println!("cargo:rustc-link-lib=static=binding");
 
-fn build_hermes() {
-    assert!(Command::new("cmake")
-        .args(["--build", "./build_release"])
-        .status()
-        .unwrap()
-        .success());
+    println!(
+        "cargo:rustc-link-search=native={}/build/hermes/API/hermes/",
+        dst.display()
+    );
+    println!("cargo:rustc-link-lib=static=hermesapi");
 }
