@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(
     ${TARGET}
-    STATIC
+    SHARED
     binding.cc
 )
 
@@ -23,7 +23,9 @@ target_include_directories(
 
 target_link_libraries(
     ${TARGET}
-    PRIVATE libhermes
+    PRIVATE hermesapi
 )
+
+set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "-Wl, -all_load")
 
 install(TARGETS ${TARGET} DESTINATION .)

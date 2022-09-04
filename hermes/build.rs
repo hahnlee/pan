@@ -5,11 +5,5 @@ fn main() {
         .build();
 
     println!("cargo:rustc-link-search=native={}", dst.display());
-    println!("cargo:rustc-link-lib=static=binding");
-
-    println!(
-        "cargo:rustc-link-search=native={}/build/hermes/API/hermes/",
-        dst.display()
-    );
-    println!("cargo:rustc-link-lib=static=hermesapi");
+    println!("cargo:rustc-link-lib=dylib=binding");
 }
