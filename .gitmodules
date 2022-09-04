@@ -1,3 +1,3 @@
 [submodule "hermes"]
 	path = hermes/binding/hermes
-	url = https://github.com/hahnlee/hermes
+	url = https://github.com/facebook/hermes

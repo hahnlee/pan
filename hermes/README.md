@@ -1,4 +1,6 @@
 # Hermes.rs
+Hermes Version: [v0.12.0](https://github.com/facebook/hermes/releases/tag/v0.12.0)
+
 Rust bindings for the Hermes JavaScript engine
 
 # Dependencies
