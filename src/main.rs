@@ -1,7 +1,9 @@
+use hermes::runtime::HermesRuntime;
 use pan::version;
 
 fn main() {
     println!("{}", version::get_bytecode_version());
 
-    hermes::runtime::make_hermes_runtime();
+    let runtime = HermesRuntime::new();
+    println!("{}", runtime.is_inspectable());
 }

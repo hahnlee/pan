@@ -15,4 +15,9 @@ extern "C"
   {
     return makeHermesRuntime().release();
   }
+
+  bool hermes__runtime_isInspectable(HermesRuntime *runtime)
+  {
+    return runtime->isInspectable();
+  }
 }
