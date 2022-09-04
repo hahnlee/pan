@@ -1,8 +1,10 @@
-include!("bindings.rs");
+pub mod runtime;
+pub mod support;
+pub mod bindings;
 
 #[cfg(test)]
 mod tests {
-    use crate::get_bytecode_version;
+    use crate::bindings::get_bytecode_version;
 
     #[test]
     fn check_version() {
