@@ -26,6 +26,4 @@ target_link_libraries(
     PRIVATE hermesapi
 )
 
-set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "-Wl, -all_load")
-
 install(TARGETS ${TARGET} DESTINATION .)
