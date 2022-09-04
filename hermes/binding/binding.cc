@@ -1,9 +1,13 @@
 #include <hermes/hermes.h>
+#include <jsi/jsi.h>
 
+using namespace facebook;
 using namespace facebook::hermes;
 
-uint32_t version = HermesRuntime::getBytecodeVersion();
-
-extern "C" uint32_t getBytecodeVersion() {
-  return version;
+extern "C"
+{
+  uint32_t getBytecodeVersion()
+  {
+    return HermesRuntime::getBytecodeVersion();
+  }
 }
