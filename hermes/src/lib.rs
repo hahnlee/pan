@@ -1,10 +1,10 @@
 pub mod runtime;
 pub mod support;
-pub mod bindings;
+pub mod jsi;
 
 #[cfg(test)]
 mod tests {
-    use crate::bindings::get_bytecode_version;
+    use crate::runtime::get_bytecode_version;
 
     #[test]
     fn check_version() {
