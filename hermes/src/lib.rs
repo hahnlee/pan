@@ -1,6 +1,7 @@
 pub mod runtime;
 pub mod support;
 pub mod jsi;
+pub mod handle;
 
 #[cfg(test)]
 mod tests {
@@ -8,7 +9,7 @@ mod tests {
 
     #[test]
     fn check_version() {
-        assert_eq!(runtime::get_bytecode_version(), 89);
+        assert_eq!(runtime::HermesRuntime::get_bytecode_version(), 89);
     }
 
     #[test]
