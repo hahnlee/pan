@@ -1,7 +1,7 @@
+pub mod handle;
+pub mod jsi;
 pub mod runtime;
 pub mod support;
-pub mod jsi;
-pub mod handle;
 
 #[cfg(test)]
 mod tests {
@@ -16,5 +16,11 @@ mod tests {
     fn check_runtime() {
         let runtime = runtime::HermesRuntime::new();
         assert_eq!(runtime.is_inspectable(), true);
+    }
+
+    #[test]
+    fn check_bytecode() {
+        let invalid: [u8; 0] = [];
+        assert_eq!(runtime::HermesRuntime::is_hermes_bytecode(&invalid), false);
     }
 }

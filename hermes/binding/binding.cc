@@ -6,6 +6,11 @@ using namespace facebook::hermes;
 
 extern "C"
 {
+  bool hermes__isHermesBytecode(const uint8_t *data, size_t len)
+  {
+    return HermesRuntime::isHermesBytecode(data, len);
+  }
+
   uint32_t hermes__getBytecodeVersion()
   {
     return HermesRuntime::getBytecodeVersion();
