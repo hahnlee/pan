@@ -33,6 +33,7 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
 #[cfg(test)]
 mod tests {
     use crate::compile_js;
+    use crate::jsi::buffer::{Buffer, StringBuffer};
     use crate::runtime;
 
     #[test]
@@ -68,5 +69,11 @@ mod tests {
     fn check_bytecode_err() {
         let invalid: [u8; 0] = [];
         assert_eq!(runtime::HermesRuntime::is_hermes_bytecode(&invalid), false);
+    }
+
+    #[test]
+    fn create_string_buffer() {
+        let buffer = StringBuffer::new("Hello World!");
+        assert_eq!(buffer.size(), 12);
     }
 }

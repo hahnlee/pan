@@ -3,6 +3,7 @@
 #include <jsi/jsi.h>
 
 using namespace facebook::hermes;
+using namespace facebook::jsi;
 
 extern "C"
 {
@@ -39,5 +40,22 @@ extern "C"
   bool hermes__runtime_isInspectable(HermesRuntime *runtime)
   {
     return runtime->isInspectable();
+  }
+
+  StringBuffer *jsi__stringBuffer_New(const char *data)
+  {
+    std::string code = std::string(data);
+    StringBuffer *buffer = new StringBuffer(code);
+    return buffer;
+  }
+
+  size_t jsi__stringBuffer_size(StringBuffer *buffer)
+  {
+    return buffer->size();
+  }
+
+  void jsi__stringBuffer_delete(StringBuffer *buffer)
+  {
+    delete buffer;
   }
 }
