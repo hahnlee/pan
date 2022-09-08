@@ -24,7 +24,8 @@ I hope one day we can write wasm in JS and link it with the electron/tauri API, 
 - Better module system (or better module resolution)
 - ESM modules (for now)
 - Cross platform (for now)
+- Libuv
 
 # Note
 - This is a POC framework.
-- It only works on Mac OS.
+- It only works on macOS.
