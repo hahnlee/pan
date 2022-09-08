@@ -1,5 +1,6 @@
 use crate::handle::Local;
 use crate::support::Opaque;
+use crate::jsi::runtime::Runtime;
 
 extern "C" {
     fn hermes__makeHermesRuntime() -> *mut HermesRuntime;
@@ -29,3 +30,5 @@ impl HermesRuntime {
         unsafe { hermes__runtime_isInspectable(&*self) == 1 }
     }
 }
+
+impl Runtime for HermesRuntime {}
