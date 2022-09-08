@@ -3,7 +3,7 @@ use crate::support::Opaque;
 use std::ffi::CString;
 
 extern "C" {
-    fn jsi__stringBuffer_New(data: *const libc::c_char) -> *const StringBuffer;
+    fn jsi__stringBuffer_new(data: *const libc::c_char) -> *const StringBuffer;
     fn jsi__stringBuffer_size(buffer: *const StringBuffer) -> libc::size_t;
     fn jsi__stringBuffer_delete(buffer: *mut StringBuffer);
 }
@@ -19,7 +19,7 @@ pub struct StringBuffer(Opaque);
 impl StringBuffer {
     pub fn new<'s>(s: &str) -> Local<'s, StringBuffer> {
         let data = CString::new(s).unwrap();
-        unsafe { Local::from_raw(jsi__stringBuffer_New(data.as_ptr())).unwrap() }
+        unsafe { Local::from_raw(jsi__stringBuffer_new(data.as_ptr())).unwrap() }
     }
 }
 

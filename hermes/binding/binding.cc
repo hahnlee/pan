@@ -42,7 +42,18 @@ extern "C"
     return runtime->isInspectable();
   }
 
-  StringBuffer *jsi__stringBuffer_New(const char *data)
+  void hermes__runtime_delete(HermesRuntime *runtime)
+  {
+    delete runtime;
+  }
+
+  Value *hermes__runtime_evaluateJavaScript(HermesRuntime *runtime, Buffer *buffer, const char *sourceURL)
+  {
+    Value value = runtime->evaluateJavaScript(std::shared_ptr<Buffer>(buffer), std::string(sourceURL));
+    return new Value(std::move(value));
+  }
+
+  StringBuffer *jsi__stringBuffer_new(const char *data)
   {
     std::string code = std::string(data);
     StringBuffer *buffer = new StringBuffer(code);
@@ -57,5 +68,20 @@ extern "C"
   void jsi__stringBuffer_delete(StringBuffer *buffer)
   {
     delete buffer;
+  }
+
+  bool jsi__value_isUndefined(Value *value)
+  {
+    return value->isUndefined();
+  }
+
+  bool jsi__value_isNumber(Value *value, HermesRuntime *runtime)
+  {
+    return value->isNumber();
+  }
+
+  void jsi__value_delete(Value *value)
+  {
+    delete value;
   }
 }

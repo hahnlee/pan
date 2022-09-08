@@ -10,8 +10,8 @@ extern "C" {
         code: *const i8,
         data: &*mut u8,
         size: *mut libc::size_t,
-        optimize: u8,
-    ) -> u8;
+        optimize: bool,
+    ) -> bool;
 }
 
 pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
@@ -20,8 +20,8 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
 
     let code = CString::new(code).unwrap();
 
-    let result = unsafe { hermes__compileJS(code.as_ptr(), &bytecode, &mut size, optimize as u8) };
-    if result == 0 {
+    let result = unsafe { hermes__compileJS(code.as_ptr(), &bytecode, &mut size, optimize) };
+    if !result {
         return Err(());
     }
 
@@ -34,7 +34,9 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
 mod tests {
     use crate::compile_js;
     use crate::jsi::buffer::{Buffer, StringBuffer};
+    use crate::jsi::runtime::Runtime;
     use crate::runtime;
+    use std::ops::Deref;
 
     #[test]
     fn check_version() {
@@ -75,5 +77,12 @@ mod tests {
     fn create_string_buffer() {
         let buffer = StringBuffer::new("Hello World!");
         assert_eq!(buffer.size(), 12);
+    }
+
+    #[test]
+    fn check_evaluate_javascript() {
+        let runtime = runtime::HermesRuntime::new();
+        let value = runtime.evaluate_javascript(StringBuffer::new("1 + 1").deref(), "");
+        assert_eq!(value.is_number(runtime.deref()), true);
     }
 }
