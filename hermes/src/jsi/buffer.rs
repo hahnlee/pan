@@ -34,3 +34,14 @@ impl Drop for StringBuffer {
         unsafe { jsi__stringBuffer_delete(&mut *self) };
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::jsi::buffer::{Buffer, StringBuffer};
+
+    #[test]
+    fn create_string_buffer() {
+        let buffer = StringBuffer::new("Hello World!");
+        assert_eq!(buffer.size(), 12);
+    }
+}

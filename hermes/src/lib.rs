@@ -33,7 +33,6 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
 #[cfg(test)]
 mod tests {
     use crate::compile_js;
-    use crate::jsi::buffer::{Buffer, StringBuffer};
 
     #[test]
     fn check_compile_js() {
@@ -45,11 +44,5 @@ mod tests {
     fn check_compile_js_err() {
         let invalid = compile_js("fn test() {}", false);
         assert_eq!(invalid.is_err(), true);
-    }
-
-    #[test]
-    fn create_string_buffer() {
-        let buffer = StringBuffer::new("Hello World!");
-        assert_eq!(buffer.size(), 12);
     }
 }
