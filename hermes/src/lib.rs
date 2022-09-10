@@ -34,20 +34,6 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
 mod tests {
     use crate::compile_js;
     use crate::jsi::buffer::{Buffer, StringBuffer};
-    use crate::jsi::runtime::Runtime;
-    use crate::runtime;
-    use std::ops::Deref;
-
-    #[test]
-    fn check_version() {
-        assert_eq!(runtime::HermesRuntime::get_bytecode_version(), 89);
-    }
-
-    #[test]
-    fn check_runtime() {
-        let runtime = runtime::HermesRuntime::new();
-        assert_eq!(runtime.is_inspectable(), true);
-    }
 
     #[test]
     fn check_compile_js() {
@@ -62,27 +48,8 @@ mod tests {
     }
 
     #[test]
-    fn check_bytecode() {
-        let valid = compile_js("x + 2", false).unwrap();
-        assert_eq!(runtime::HermesRuntime::is_hermes_bytecode(&valid), true)
-    }
-
-    #[test]
-    fn check_bytecode_err() {
-        let invalid: [u8; 0] = [];
-        assert_eq!(runtime::HermesRuntime::is_hermes_bytecode(&invalid), false);
-    }
-
-    #[test]
     fn create_string_buffer() {
         let buffer = StringBuffer::new("Hello World!");
         assert_eq!(buffer.size(), 12);
-    }
-
-    #[test]
-    fn check_evaluate_javascript() {
-        let runtime = runtime::HermesRuntime::new();
-        let value = runtime.evaluate_javascript(StringBuffer::new("1 + 1").deref(), "");
-        assert_eq!(value.is_number(runtime.deref()), true);
     }
 }

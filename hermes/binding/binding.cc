@@ -53,6 +53,12 @@ extern "C"
     return new Value(std::move(value));
   }
 
+  Object *hermes__runtime_global(HermesRuntime *runtime)
+  {
+    Object object = runtime->global();
+    return new Object(std::move(object));
+  }
+
   StringBuffer *jsi__stringBuffer_new(const char *data)
   {
     std::string code = std::string(data);
@@ -80,8 +86,24 @@ extern "C"
     return value->isNumber();
   }
 
+  double jsi__value_asNumber(Value *self)
+  {
+    return self->asNumber();
+  }
+
   void jsi__value_delete(Value *value)
   {
     delete value;
+  }
+
+  Value *jsi__object_getProperty(Object *self, Runtime *runtime, const char *name)
+  {
+    Value value = self->getProperty(*runtime, name);
+    return new Value(std::move(value));
+  }
+
+  void jsi__object_delete(Object *object)
+  {
+    delete object;
   }
 }
