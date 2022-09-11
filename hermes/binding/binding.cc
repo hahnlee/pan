@@ -7,6 +7,21 @@ using namespace facebook::jsi;
 
 extern "C"
 {
+  void cpp_string_destroy(std::string *str)
+  {
+    delete str;
+  }
+
+  size_t cpp_string_size(std::string *str)
+  {
+    return str->size();
+  }
+
+  char *cpp_string_data(std::string *str)
+  {
+    return str->data();
+  }
+
   bool hermes__compileJS(const char *str, const char *&data, size_t &size, bool optimize)
   {
     std::string code = std::string(str);
@@ -105,5 +120,15 @@ extern "C"
   void jsi__object_delete(Object *object)
   {
     delete object;
+  }
+
+  PropNameID *jsi__PropNameID_forAscii(Runtime *runtime, const char *name)
+  {
+    return new PropNameID(std::move(PropNameID::forUtf8(*runtime, std::string(name))));
+  }
+
+  std::string *jsi__PropNameID_utf8(PropNameID *self, Runtime *runtime)
+  {
+    return new std::string(std::move(self->utf8(*runtime)));
   }
 }

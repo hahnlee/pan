@@ -1,7 +1,9 @@
 pub mod handle;
 pub mod jsi;
 pub mod runtime;
-pub mod support;
+
+mod support;
+mod cpp;
 
 use std::ffi::CString;
 
