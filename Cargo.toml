@@ -9,7 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "3.2.20" }
-"hermes" = { path = "./hermes" }
+hermes = { path = "./hermes" }
 
 [workspace]
 members = [

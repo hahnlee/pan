@@ -3,6 +3,7 @@ use crate::jsi::runtime::Runtime;
 use crate::support::Opaque;
 
 extern "C" {
+    fn jsi__value_NewNumber(value: f64) -> *const Value;
     fn jsi__value_isUndefined(value: *const Value) -> bool;
     fn jsi__value_isNumber(value: *const Value, runtime: *const libc::c_void) -> bool;
     fn jsi__value_delete(value: *const Value);
@@ -14,6 +15,10 @@ extern "C" {
 pub struct Value(Opaque);
 
 impl Value {
+    pub fn from_number<'s>(number: f64) -> Local<'s, Value> {
+        unsafe { Value::from_ptr(jsi__value_NewNumber(number)) }
+    }
+
     pub fn from_ptr<'s>(ptr: *const Value) -> Local<'s, Value> {
         unsafe { Local::from_raw(ptr).unwrap() }
     }

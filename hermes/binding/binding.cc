@@ -91,6 +91,11 @@ extern "C"
     delete buffer;
   }
 
+  Value *jsi__value_NewNumber(double value)
+  {
+    return new Value(value);
+  }
+
   bool jsi__value_isUndefined(Value *value)
   {
     return value->isUndefined();
@@ -117,12 +122,17 @@ extern "C"
     return new Value(std::move(value));
   }
 
+  void jsi__object_setProperty(Object *self, Runtime *runtime, const char *name, Function *value)
+  {
+    self->setProperty(*runtime, name, *value);
+  }
+
   void jsi__object_delete(Object *object)
   {
     delete object;
   }
 
-  PropNameID *jsi__PropNameID_forAscii(Runtime *runtime, const char *name)
+  PropNameID *jsi__PropNameID_forUtf8(Runtime *runtime, const char *name)
   {
     return new PropNameID(std::move(PropNameID::forUtf8(*runtime, std::string(name))));
   }
@@ -130,5 +140,18 @@ extern "C"
   std::string *jsi__PropNameID_utf8(PropNameID *self, Runtime *runtime)
   {
     return new std::string(std::move(self->utf8(*runtime)));
+  }
+
+  typedef Value *(*Callback)(void *closure);
+
+  Function *jsi__function_createFromHostFunction(Runtime *runtime, PropNameID *name, unsigned int paramCount, Callback callback, void *closure)
+  {
+    auto cb = [callback, closure](Runtime &rt, const Value &thisVal, const Value *args, size_t count) -> Value
+    {
+      Value *value = callback(closure);
+      return Value(std::move(*value));
+    };
+    Function fn = Function::createFromHostFunction(*runtime, *name, paramCount, cb);
+    return new Function(std::move(fn));
   }
 }

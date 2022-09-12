@@ -1,13 +1,11 @@
 use crate::cpp::string::CppString;
 use crate::jsi::runtime::Runtime;
 use crate::support::Opaque;
-#[cfg(feature = "alloc")]
-use alloc::borrow::Cow;
 
 use std::ffi::CString;
 
 extern "C" {
-    fn jsi__PropNameID_forAscii(
+    fn jsi__PropNameID_forUtf8(
         runtime: *const libc::c_void,
         name: *const libc::c_char,
     ) -> *mut InternalPropNameID;
@@ -27,7 +25,7 @@ impl PropNameID {
     pub fn from_str<T: Runtime>(runtime: &T, name: &str) -> PropNameID {
         let name = CString::new(name).unwrap();
         unsafe {
-            PropNameID(jsi__PropNameID_forAscii(
+            PropNameID(jsi__PropNameID_forUtf8(
                 &*runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),
             ))
@@ -43,5 +41,9 @@ impl PropNameID {
         };
 
         return String::from(cpp_str.to_str());
+    }
+
+    pub fn to_ptr(&self) -> *const libc::c_void {
+        self.0 as *const libc::c_void
     }
 }

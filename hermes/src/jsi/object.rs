@@ -12,6 +12,12 @@ extern "C" {
         runtime: *const libc::c_void,
         name: *const libc::c_char,
     ) -> *const Value;
+    fn jsi__object_setProperty(
+        Object: *const Object,
+        runtime: *const libc::c_void,
+        name: *const libc::c_char,
+        value: *const libc::c_void,
+    );
 }
 
 #[repr(C)]
@@ -32,6 +38,19 @@ impl Object {
                 runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),
             ))
+        }
+    }
+
+    pub fn set_property<T: Runtime>(&self, runtime: &T, name: &str, value: *const libc::c_void) {
+        let name = CString::new(name).unwrap();
+
+        unsafe {
+            jsi__object_setProperty(
+                &*self,
+                &*runtime as *const _ as *const libc::c_void,
+                name.as_ptr(),
+                value,
+            );
         }
     }
 }
