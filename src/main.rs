@@ -8,9 +8,11 @@ use std::ops::Deref;
 fn main() {
     let runtime = HermesRuntime::new();
 
+    let number = 10.0;
+
     let function =
-        Function::from_host_function::<HermesRuntime, _>(&runtime, "required", 0, &mut || {
-            let value = Value::from_number(10.0);
+        Function::from_host_function::<HermesRuntime, _>(&runtime, "required", 0, move || {
+            let value = Value::from_number(number);
             value.deref()
         });
 
@@ -22,5 +24,5 @@ fn main() {
         runtime.evaluate_javascript::<StringBuffer>(StringBuffer::new("required()").deref(), "");
 
     println!("{}", output.is_number(&*runtime));
-    println!("{}", output.as_number());
+    println!("{}", output.as_number() == number);
 }

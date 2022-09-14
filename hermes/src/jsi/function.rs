@@ -10,7 +10,7 @@ extern "C" {
         runtime: *const libc::c_void,
         name: *const libc::c_void,
         param_count: u32,
-        cb: Callback,
+        cb: Option<Callback>,
         closure: *const libc::c_void,
     ) -> *mut InternalFunction;
 }
@@ -22,41 +22,32 @@ struct InternalFunction(Opaque);
 #[derive(Debug)]
 pub struct Function(*mut InternalFunction);
 
-fn to_c_callback<F>(_closure: &F) -> Callback
-where
-    F: FnMut() -> *const Value,
-{
-    c_callback::<F>
-}
-
-unsafe extern "C" fn c_callback<F>(closure: *mut libc::c_void) -> *const Value
-where
-    F: FnMut() -> *const Value,
-{
-    let closure = &mut *(closure as *mut F);
+extern "C" fn c_callback(closure: *mut libc::c_void) -> *const Value {
+    let closure: &mut Box<dyn FnMut() -> *const Value> = unsafe { std::mem::transmute(closure) };
     closure()
 }
 
 impl Function {
-    pub fn from_host_function<T: Runtime, P>(
+    pub fn from_host_function<T: Runtime, F>(
         runtime: &T,
         name: &str,
         param_count: u32,
-        closure: &mut P,
+        closure: F,
     ) -> Function
     where
-        P: Fn() -> *const Value,
+        F: FnMut() -> *const Value,
+        F: 'static,
     {
         let name = PropNameID::from_str(runtime, name);
-        let callback = to_c_callback(&closure);
+        let cb: Box<Box<dyn FnMut() -> *const Value>> = Box::new(Box::new(closure));
 
         unsafe {
             Function(jsi__function_createFromHostFunction(
                 &*runtime as *const _ as *const libc::c_void,
                 name.to_ptr(),
                 param_count,
-                callback,
-                closure as *mut _ as *mut libc::c_void,
+                Some(c_callback),
+                Box::into_raw(cb) as *mut _ as *mut libc::c_void,
             ))
         }
     }
