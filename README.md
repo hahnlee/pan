@@ -1,7 +1,7 @@
 <img src="./assets/logo.jpg" alt="Pan logo" width="25%" />
 
 # Pan
-Yet another JavaScript runtime powered by Hermes. Pan is built to support [Negatron](https://github.com/hahnlee/negatron)
+Yet another JavaScript runtime powered by Hermes. Pan is built to support [positron](https://github.com/hahnlee/positron)
 
 # Motivation
 Just for Fun! ...but, I was inspired by the following reasons:
