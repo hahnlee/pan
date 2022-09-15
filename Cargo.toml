@@ -9,9 +9,9 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "3.2.20" }
-hermes = { path = "./hermes" }
+hermes = { path = "./crates/hermes" }
 
 [workspace]
 members = [
-  "hermes",
+  "crates/hermes",
 ]
