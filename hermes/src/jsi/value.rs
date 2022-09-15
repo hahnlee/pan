@@ -27,7 +27,7 @@ impl Value {
         unsafe { jsi__value_isUndefined(&*self) }
     }
 
-    pub fn is_number<T: Runtime>(&self, runtime: *const T) -> bool {
+    pub fn is_number<T: Runtime>(&self, runtime: &T) -> bool {
         unsafe { jsi__value_isNumber(&*self, runtime as *const _ as *const libc::c_void) }
     }
 

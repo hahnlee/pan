@@ -23,6 +23,6 @@ fn main() {
     let output =
         runtime.evaluate_javascript::<StringBuffer>(StringBuffer::new("required()").deref(), "");
 
-    println!("{}", output.is_number(&*runtime));
+    println!("{}", output.is_number::<HermesRuntime>(&runtime));
     println!("{}", output.as_number() == number);
 }

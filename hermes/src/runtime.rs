@@ -74,7 +74,7 @@ mod tests {
     use crate::compile_js;
     use crate::jsi::buffer::StringBuffer;
     use crate::jsi::runtime::Runtime;
-    use crate::runtime;
+    use crate::runtime::{self, HermesRuntime};
     use std::ops::Deref;
 
     #[test]
@@ -113,7 +113,7 @@ mod tests {
         let runtime = runtime::HermesRuntime::new();
         runtime.evaluate_javascript(StringBuffer::new("x = 321").deref(), "");
         let global = runtime.global();
-        let value = global.get_property(runtime.deref(), "x");
+        let value = global.get_property::<HermesRuntime>(&runtime, "x");
         assert_eq!(value.is_number(runtime.deref()), true);
         assert_eq!(value.as_number(), 321.0);
     }

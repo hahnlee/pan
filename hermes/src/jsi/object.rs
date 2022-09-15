@@ -29,13 +29,13 @@ impl Object {
         unsafe { Local::from_raw(ptr).unwrap() }
     }
 
-    pub fn get_property<T: Runtime>(&self, runtime: *const T, name: &str) -> Local<'_, Value> {
+    pub fn get_property<T: Runtime>(&self, runtime: &T, name: &str) -> Local<'_, Value> {
         let name = CString::new(name).unwrap();
 
         unsafe {
             Value::from_ptr(jsi__object_getProperty(
                 &*self,
-                runtime as *const _ as *const libc::c_void,
+                &*runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),
             ))
         }
