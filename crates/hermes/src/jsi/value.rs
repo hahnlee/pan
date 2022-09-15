@@ -8,6 +8,7 @@ extern "C" {
     fn jsi__value_isNumber(value: *const Value, runtime: *const libc::c_void) -> bool;
     fn jsi__value_delete(value: *const Value);
     fn jsi__value_asNumber(value: *const Value) -> f64;
+    fn jsi__offset_from_ptr(ptr: *const Value, offset: usize) -> *const Value;
 }
 
 #[repr(C)]
@@ -16,10 +17,10 @@ pub struct Value(Opaque);
 
 impl Value {
     pub fn from_number<'s>(number: f64) -> Local<'s, Value> {
-        unsafe { Value::from_ptr(jsi__value_NewNumber(number)) }
+        unsafe { Value::from_raw(jsi__value_NewNumber(number)) }
     }
 
-    pub fn from_ptr<'s>(ptr: *const Value) -> Local<'s, Value> {
+    pub fn from_raw<'s>(ptr: *const Value) -> Local<'s, Value> {
         unsafe { Local::from_raw(ptr).unwrap() }
     }
 
@@ -33,6 +34,10 @@ impl Value {
 
     pub fn as_number(&self) -> f64 {
         unsafe { jsi__value_asNumber(&*self) }
+    }
+
+    pub fn offset(&self, offset: usize) -> *const Value {
+        unsafe { jsi__offset_from_ptr(&*self, offset) }
     }
 }
 

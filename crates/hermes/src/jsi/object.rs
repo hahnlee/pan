@@ -25,7 +25,7 @@ extern "C" {
 pub struct Object(Opaque);
 
 impl Object {
-    pub fn from_ptr<'s>(ptr: *const Object) -> Local<'s, Object> {
+    pub fn from_raw<'s>(ptr: *const Object) -> Local<'s, Object> {
         unsafe { Local::from_raw(ptr).unwrap() }
     }
 
@@ -33,7 +33,7 @@ impl Object {
         let name = CString::new(name).unwrap();
 
         unsafe {
-            Value::from_ptr(jsi__object_getProperty(
+            Value::from_raw(jsi__object_getProperty(
                 &*self,
                 &*runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),

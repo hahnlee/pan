@@ -39,12 +39,16 @@ impl HermesRuntime {
         unsafe { Local::from_raw(hermes__makeHermesRuntime()).unwrap() }
     }
 
+    pub fn from_raw<'s>(ptr: *const HermesRuntime) -> Local<'s, HermesRuntime> {
+        unsafe { Local::from_raw(ptr).unwrap() }
+    }
+
     pub fn is_inspectable(&self) -> bool {
         unsafe { hermes__runtime_isInspectable(&*self) }
     }
 
     pub fn global(&self) -> Local<'_, Object> {
-        unsafe { Object::from_ptr(hermes__runtime_global(&*self)) }
+        unsafe { Object::from_raw(hermes__runtime_global(&*self)) }
     }
 }
 
@@ -100,7 +104,7 @@ mod tests {
     use crate::compile_js;
     use crate::jsi::buffer::StringBuffer;
     use crate::jsi::runtime::Runtime;
-    use crate::runtime::{OwnedHermesRuntime, HermesRuntime};
+    use crate::runtime::{HermesRuntime, OwnedHermesRuntime};
     use std::ops::Deref;
 
     #[test]

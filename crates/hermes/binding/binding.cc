@@ -116,6 +116,11 @@ extern "C"
     delete value;
   }
 
+  Value *jsi__offset_from_ptr(Value *value, size_t offset)
+  {
+    return &value[offset];
+  }
+
   Value *jsi__object_getProperty(Object *self, Runtime *runtime, const char *name)
   {
     Value value = self->getProperty(*runtime, name);
@@ -142,13 +147,13 @@ extern "C"
     return new std::string(std::move(self->utf8(*runtime)));
   }
 
-  typedef Value *(*Callback)(void *closure, Runtime *runtime, const Value *args, size_t count);
+  typedef Value *(*Callback)(void *closure, Runtime *runtime, const Value *thisVal, const Value *args, size_t count);
 
   Function *jsi__function_createFromHostFunction(Runtime *runtime, PropNameID *name, unsigned int paramCount, Callback callback, void *closure)
   {
     auto cb = [callback, closure, runtime](Runtime &rt, const Value &thisVal, const Value *args, size_t count) -> Value
     {
-      Value *value = callback(closure, runtime, args, count);
+      Value *value = callback(closure, runtime, &thisVal, args, count);
       return Value(std::move(*value));
     };
     Function fn = Function::createFromHostFunction(*runtime, *name, paramCount, cb);
