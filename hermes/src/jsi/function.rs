@@ -56,3 +56,36 @@ impl Function {
         self.0 as *const libc::c_void
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::jsi::buffer::StringBuffer;
+    use crate::jsi::function::Function;
+    use crate::jsi::runtime::Runtime;
+    use crate::jsi::value::Value;
+    use crate::runtime::HermesRuntime;
+
+    use std::ops::Deref;
+
+    #[test]
+    fn check_function_with_pointer() {
+        let runtime = HermesRuntime::new();
+
+        let number = 10.0;
+
+        let function =
+            Function::from_host_function::<HermesRuntime, _>(&runtime, "required", 0, move || {
+                let value = Value::from_number(number);
+                value.deref()
+            });
+
+        runtime
+            .global()
+            .set_property::<HermesRuntime>(&runtime, "required", function.to_ptr());
+
+        let output = runtime
+            .evaluate_javascript::<StringBuffer>(StringBuffer::new("required()").deref(), "");
+
+        assert_eq!(output.as_number(), number);
+    }
+}
