@@ -77,13 +77,13 @@ mod test {
     use crate::jsi::function::Function;
     use crate::jsi::runtime::Runtime;
     use crate::jsi::value::Value;
-    use crate::runtime::HermesRuntime;
+    use crate::runtime::{HermesRuntime, OwnedHermesRuntime};
 
     use std::ops::Deref;
 
     #[test]
     fn check_function_with_pointer() {
-        let runtime = HermesRuntime::new();
+        let runtime = OwnedHermesRuntime::new();
 
         let number = 10.0;
 
