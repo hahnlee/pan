@@ -22,27 +22,19 @@ impl CppString {
     }
 
     pub fn size(&self) -> usize {
-        unsafe {
-            cpp_string_size(&*self.0)
-        }
+        unsafe { cpp_string_size(&*self.0) }
     }
 
     pub fn data(&self) -> *const u8 {
-        unsafe {
-            cpp_string_data(&*self.0)
-        }
+        unsafe { cpp_string_data(&*self.0) }
     }
 
     pub fn to_bytes(&self) -> &[u8] {
-        unsafe {
-            std::slice::from_raw_parts(self.data(), self.size())
-        }
+        unsafe { std::slice::from_raw_parts(self.data(), self.size()) }
     }
 
     pub fn to_str(&mut self) -> &str {
-        unsafe {
-            std::str::from_utf8_unchecked(self.to_bytes())
-        }
+        unsafe { std::str::from_utf8_unchecked(self.to_bytes()) }
     }
 }
 

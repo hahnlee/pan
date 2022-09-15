@@ -22,7 +22,7 @@ extern "C"
     return str->data();
   }
 
-  bool hermes__compileJS(const char *str, const char *&data, size_t &size, bool optimize)
+  bool hermes__compile_js(const char *str, const char *&data, size_t &size, bool optimize)
   {
     std::string code = std::string(str);
     std::string bytecode;
@@ -37,22 +37,22 @@ extern "C"
     return result;
   }
 
-  HermesRuntime *hermes__makeHermesRuntime()
+  HermesRuntime *hermes__make_hermes_runtime()
   {
     return makeHermesRuntime().release();
   }
 
-  bool hermes__runtime_isHermesBytecode(const uint8_t *data, size_t len)
+  bool hermes__runtime_is_hermes_bytecode(const uint8_t *data, size_t len)
   {
     return HermesRuntime::isHermesBytecode(data, len);
   }
 
-  uint32_t hermes__runtime_getBytecodeVersion()
+  uint32_t hermes__runtime_get_bytecode_version()
   {
     return HermesRuntime::getBytecodeVersion();
   }
 
-  bool hermes__runtime_isInspectable(HermesRuntime *runtime)
+  bool hermes__runtime_is_inspectable(HermesRuntime *runtime)
   {
     return runtime->isInspectable();
   }
@@ -62,7 +62,7 @@ extern "C"
     delete runtime;
   }
 
-  Value *hermes__runtime_evaluateJavaScript(HermesRuntime *runtime, Buffer *buffer, const char *sourceURL)
+  Value *hermes__runtime_evaluate_javascript(HermesRuntime *runtime, Buffer *buffer, const char *sourceURL)
   {
     Value value = runtime->evaluateJavaScript(std::shared_ptr<Buffer>(buffer), std::string(sourceURL));
     return new Value(std::move(value));
@@ -74,39 +74,39 @@ extern "C"
     return new Object(std::move(object));
   }
 
-  StringBuffer *jsi__stringBuffer_new(const char *data)
+  StringBuffer *jsi__string_buffer_new(const char *data)
   {
     std::string code = std::string(data);
     StringBuffer *buffer = new StringBuffer(code);
     return buffer;
   }
 
-  size_t jsi__stringBuffer_size(StringBuffer *buffer)
+  size_t jsi__string_buffer_size(StringBuffer *buffer)
   {
     return buffer->size();
   }
 
-  void jsi__stringBuffer_delete(StringBuffer *buffer)
+  void jsi__string_buffer_delete(StringBuffer *buffer)
   {
     delete buffer;
   }
 
-  Value *jsi__value_NewNumber(double value)
+  Value *jsi__value_new_number(double value)
   {
     return new Value(value);
   }
 
-  bool jsi__value_isUndefined(Value *value)
+  bool jsi__value_is_undefined(Value *value)
   {
     return value->isUndefined();
   }
 
-  bool jsi__value_isNumber(Value *value, HermesRuntime *runtime)
+  bool jsi__value_is_number(Value *value, HermesRuntime *runtime)
   {
     return value->isNumber();
   }
 
-  double jsi__value_asNumber(Value *self)
+  double jsi__value_as_number(Value *self)
   {
     return self->asNumber();
   }
@@ -121,13 +121,13 @@ extern "C"
     return &value[offset];
   }
 
-  Value *jsi__object_getProperty(Object *self, Runtime *runtime, const char *name)
+  Value *jsi__object_get_property(Object *self, Runtime *runtime, const char *name)
   {
     Value value = self->getProperty(*runtime, name);
     return new Value(std::move(value));
   }
 
-  void jsi__object_setProperty(Object *self, Runtime *runtime, const char *name, Function *value)
+  void jsi__object_set_property(Object *self, Runtime *runtime, const char *name, Function *value)
   {
     self->setProperty(*runtime, name, *value);
   }
@@ -137,19 +137,19 @@ extern "C"
     delete object;
   }
 
-  PropNameID *jsi__PropNameID_forUtf8(Runtime *runtime, const char *name)
+  PropNameID *jsi__prop_name_id_for_utf8(Runtime *runtime, const char *name)
   {
     return new PropNameID(std::move(PropNameID::forUtf8(*runtime, std::string(name))));
   }
 
-  std::string *jsi__PropNameID_utf8(PropNameID *self, Runtime *runtime)
+  std::string *jsi__prop_name_id_utf8(PropNameID *self, Runtime *runtime)
   {
     return new std::string(std::move(self->utf8(*runtime)));
   }
 
   typedef Value *(*Callback)(void *closure, Runtime *runtime, const Value *thisVal, const Value *args, size_t count);
 
-  Function *jsi__function_createFromHostFunction(Runtime *runtime, PropNameID *name, unsigned int paramCount, Callback callback, void *closure)
+  Function *jsi__function_create_from_host_function(Runtime *runtime, PropNameID *name, unsigned int paramCount, Callback callback, void *closure)
   {
     auto cb = [callback, closure, runtime](Runtime &rt, const Value &thisVal, const Value *args, size_t count) -> Value
     {

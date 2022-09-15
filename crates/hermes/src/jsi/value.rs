@@ -3,11 +3,11 @@ use crate::jsi::runtime::Runtime;
 use crate::support::Opaque;
 
 extern "C" {
-    fn jsi__value_NewNumber(value: f64) -> *const Value;
-    fn jsi__value_isUndefined(value: *const Value) -> bool;
-    fn jsi__value_isNumber(value: *const Value, runtime: *const libc::c_void) -> bool;
+    fn jsi__value_new_number(value: f64) -> *const Value;
+    fn jsi__value_is_undefined(value: *const Value) -> bool;
+    fn jsi__value_is_number(value: *const Value, runtime: *const libc::c_void) -> bool;
     fn jsi__value_delete(value: *const Value);
-    fn jsi__value_asNumber(value: *const Value) -> f64;
+    fn jsi__value_as_number(value: *const Value) -> f64;
     fn jsi__offset_from_ptr(ptr: *const Value, offset: usize) -> *const Value;
 }
 
@@ -17,7 +17,7 @@ pub struct Value(Opaque);
 
 impl Value {
     pub fn from_number<'s>(number: f64) -> Local<'s, Value> {
-        unsafe { Value::from_raw(jsi__value_NewNumber(number)) }
+        unsafe { Value::from_raw(jsi__value_new_number(number)) }
     }
 
     pub fn from_raw<'s>(ptr: *const Value) -> Local<'s, Value> {
@@ -25,15 +25,15 @@ impl Value {
     }
 
     pub fn is_undefined(&self) -> bool {
-        unsafe { jsi__value_isUndefined(&*self) }
+        unsafe { jsi__value_is_undefined(&*self) }
     }
 
     pub fn is_number<T: Runtime>(&self, runtime: &T) -> bool {
-        unsafe { jsi__value_isNumber(&*self, runtime as *const _ as *const libc::c_void) }
+        unsafe { jsi__value_is_number(&*self, runtime as *const _ as *const libc::c_void) }
     }
 
     pub fn as_number(&self) -> f64 {
-        unsafe { jsi__value_asNumber(&*self) }
+        unsafe { jsi__value_as_number(&*self) }
     }
 
     // TODO?: (@hahnlee) this function looks like unnecessary

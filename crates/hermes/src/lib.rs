@@ -8,8 +8,12 @@ mod support;
 use std::ffi::CString;
 
 extern "C" {
-    fn hermes__compileJS(code: *const i8, data: &*mut u8, size: *mut usize, optimize: bool)
-        -> bool;
+    fn hermes__compile_js(
+        code: *const i8,
+        data: &*mut u8,
+        size: *mut usize,
+        optimize: bool,
+    ) -> bool;
 }
 
 pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
@@ -18,7 +22,7 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
 
     let code = CString::new(code).unwrap();
 
-    let result = unsafe { hermes__compileJS(code.as_ptr(), &bytecode, &mut size, optimize) };
+    let result = unsafe { hermes__compile_js(code.as_ptr(), &bytecode, &mut size, optimize) };
     if !result {
         return Err(());
     }

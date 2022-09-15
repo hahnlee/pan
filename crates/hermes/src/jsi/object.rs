@@ -7,12 +7,12 @@ use std::ffi::CString;
 
 extern "C" {
     fn jsi__object_delete(object: *const Object);
-    fn jsi__object_getProperty(
+    fn jsi__object_get_property(
         Object: *const Object,
         runtime: *const libc::c_void,
         name: *const libc::c_char,
     ) -> *const Value;
-    fn jsi__object_setProperty(
+    fn jsi__object_set_property(
         Object: *const Object,
         runtime: *const libc::c_void,
         name: *const libc::c_char,
@@ -33,7 +33,7 @@ impl Object {
         let name = CString::new(name).unwrap();
 
         unsafe {
-            Value::from_raw(jsi__object_getProperty(
+            Value::from_raw(jsi__object_get_property(
                 &*self,
                 &*runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),
@@ -45,7 +45,7 @@ impl Object {
         let name = CString::new(name).unwrap();
 
         unsafe {
-            jsi__object_setProperty(
+            jsi__object_set_property(
                 &*self,
                 &*runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),

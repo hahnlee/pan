@@ -13,7 +13,7 @@ type Callback = unsafe extern "C" fn(
 ) -> *const Value;
 
 extern "C" {
-    fn jsi__function_createFromHostFunction(
+    fn jsi__function_create_from_host_function(
         runtime: *const libc::c_void,
         name: *const libc::c_void,
         param_count: u32,
@@ -83,7 +83,7 @@ impl Function {
         > = Box::new(Box::new(closure));
 
         unsafe {
-            Function(jsi__function_createFromHostFunction(
+            Function(jsi__function_create_from_host_function(
                 &*runtime as *const _ as *const libc::c_void,
                 name.to_ptr(),
                 param_count,
