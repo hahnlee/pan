@@ -3,7 +3,12 @@ use crate::jsi::runtime::Runtime;
 use crate::jsi::value::Value;
 use crate::support::Opaque;
 
-type Callback = unsafe extern "C" fn(*mut libc::c_void) -> *const Value;
+type Callback = unsafe extern "C" fn(
+    *mut libc::c_void,
+    runtime: *const libc::c_void,
+    args: *const Value,
+    count: libc::size_t,
+) -> *const Value;
 
 extern "C" {
     fn jsi__function_createFromHostFunction(
@@ -22,9 +27,16 @@ struct InternalFunction(Opaque);
 #[derive(Debug)]
 pub struct Function(*mut InternalFunction);
 
-extern "C" fn c_callback(closure: *mut libc::c_void) -> *const Value {
-    let closure: &mut Box<dyn FnMut() -> *const Value> = unsafe { std::mem::transmute(closure) };
-    closure()
+extern "C" fn c_callback(
+    closure: *mut libc::c_void,
+    runtime: *const libc::c_void,
+    args: *const Value,
+    count: libc::size_t,
+) -> *const Value {
+    let closure: &mut Box<
+        dyn FnMut(*const libc::c_void, *const Value, libc::size_t) -> *const Value,
+    > = unsafe { std::mem::transmute(closure) };
+    closure(runtime, args, count)
 }
 
 impl Function {
@@ -35,11 +47,13 @@ impl Function {
         closure: F,
     ) -> Function
     where
-        F: FnMut() -> *const Value,
+        F: FnMut(*const libc::c_void, *const Value, libc::size_t) -> *const Value,
         F: 'static,
     {
         let name = PropNameID::from_str(runtime, name);
-        let cb: Box<Box<dyn FnMut() -> *const Value>> = Box::new(Box::new(closure));
+        let cb: Box<
+            Box<dyn FnMut(*const libc::c_void, *const Value, libc::size_t) -> *const Value>,
+        > = Box::new(Box::new(closure));
 
         unsafe {
             Function(jsi__function_createFromHostFunction(
@@ -73,11 +87,15 @@ mod test {
 
         let number = 10.0;
 
-        let function =
-            Function::from_host_function::<HermesRuntime, _>(&runtime, "required", 0, move || {
+        let function = Function::from_host_function::<HermesRuntime, _>(
+            &runtime,
+            "required",
+            0,
+            move |_, _, _| {
                 let value = Value::from_number(number);
                 value.deref()
-            });
+            },
+        );
 
         runtime
             .global()

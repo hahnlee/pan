@@ -142,13 +142,13 @@ extern "C"
     return new std::string(std::move(self->utf8(*runtime)));
   }
 
-  typedef Value *(*Callback)(void *closure);
+  typedef Value *(*Callback)(void *closure, Runtime *runtime, const Value *args, size_t count);
 
   Function *jsi__function_createFromHostFunction(Runtime *runtime, PropNameID *name, unsigned int paramCount, Callback callback, void *closure)
   {
-    auto cb = [callback, closure](Runtime &rt, const Value &thisVal, const Value *args, size_t count) -> Value
+    auto cb = [callback, closure, runtime](Runtime &rt, const Value &thisVal, const Value *args, size_t count) -> Value
     {
-      Value *value = callback(closure);
+      Value *value = callback(closure, runtime, args, count);
       return Value(std::move(*value));
     };
     Function fn = Function::createFromHostFunction(*runtime, *name, paramCount, cb);
