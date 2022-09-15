@@ -32,6 +32,35 @@ I hope one day we can write wasm in JS and link it with the electron/tauri API, 
 - This is a POC framework.
 - It only works on macOS.
 
+# Development
+## Pre-requirements
+- [Rust](https://www.rust-lang.org)
+- [Dependencies for Hermes engine build](https://hermesengine.dev/docs/building-and-running#dependencies)
+
+### macOS
+Install rust.
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Install dependencies for Hermes engine build.
+```
+brew install cmake git ninja
+```
+
+## Clone project and submodules
+```
+git clone https://github.com/hahnlee/pan.git
+cd pan
+git submodule update --init --recursive
+```
+
+## Build and run
+```
+cd crates/cli
+cargo run -v
+```
+
 # LICENSE
 - MIT (code)
 - CC BY-SA 4.0 (logo image)
