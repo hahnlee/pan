@@ -37,8 +37,8 @@ impl Value {
     }
 
     // TODO?: (@hahnlee) this function looks like unnecessary
-    pub fn offset(&self, offset: usize) -> *const Value {
-        unsafe { jsi__offset_from_ptr(&*self, offset) }
+    pub fn offset<'s>(&self, offset: usize) -> Local<'s, Value> {
+        unsafe { Value::from_raw(jsi__offset_from_ptr(&*self, offset)) }
     }
 }
 

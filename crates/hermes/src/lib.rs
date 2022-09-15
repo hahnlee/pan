@@ -2,18 +2,14 @@ pub mod handle;
 pub mod jsi;
 pub mod runtime;
 
-mod support;
 mod cpp;
+mod support;
 
 use std::ffi::CString;
 
 extern "C" {
-    fn hermes__compileJS(
-        code: *const i8,
-        data: &*mut u8,
-        size: *mut libc::size_t,
-        optimize: bool,
-    ) -> bool;
+    fn hermes__compileJS(code: *const i8, data: &*mut u8, size: *mut usize, optimize: bool)
+        -> bool;
 }
 
 pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {

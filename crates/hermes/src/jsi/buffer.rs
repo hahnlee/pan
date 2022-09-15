@@ -4,12 +4,12 @@ use std::ffi::CString;
 
 extern "C" {
     fn jsi__stringBuffer_new(data: *const libc::c_char) -> *const StringBuffer;
-    fn jsi__stringBuffer_size(buffer: *const StringBuffer) -> libc::size_t;
+    fn jsi__stringBuffer_size(buffer: *const StringBuffer) -> usize;
     fn jsi__stringBuffer_delete(buffer: *mut StringBuffer);
 }
 
 pub trait Buffer {
-    fn size(&self) -> libc::size_t;
+    fn size(&self) -> usize;
 }
 
 #[repr(C)]
@@ -24,7 +24,7 @@ impl StringBuffer {
 }
 
 impl Buffer for StringBuffer {
-    fn size(&self) -> libc::size_t {
+    fn size(&self) -> usize {
         unsafe { jsi__stringBuffer_size(&*self) }
     }
 }

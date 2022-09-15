@@ -1,3 +1,4 @@
+use crate::handle::Local;
 use crate::jsi::pointer::PropNameID;
 use crate::jsi::runtime::Runtime;
 use crate::jsi::value::Value;
@@ -8,7 +9,7 @@ type Callback = unsafe extern "C" fn(
     runtime: *const libc::c_void,
     this: *const Value,
     args: *const Value,
-    count: libc::size_t,
+    count: usize,
 ) -> *const Value;
 
 extern "C" {
@@ -33,12 +34,28 @@ extern "C" fn c_callback(
     runtime: *const libc::c_void,
     this: *const Value,
     args: *const Value,
-    count: libc::size_t,
+    count: usize,
 ) -> *const Value {
     let closure: &mut Box<
-        dyn FnMut(*const libc::c_void, *const Value, *const Value, libc::size_t) -> *const Value,
+        dyn FnMut(
+            *const libc::c_void,
+            &Local<'_, Value>,
+            &Vec<Local<'_, Value>>,
+            usize,
+        ) -> *const Value,
     > = unsafe { std::mem::transmute(closure) };
-    closure(runtime, this, args, count)
+
+    let this = Value::from_raw(this);
+    let raw_args = Value::from_raw(args);
+
+    let mut args: Vec<Local<'_, Value>> = Vec::with_capacity(count);
+    args.push(raw_args);
+
+    for i in 1..=count {
+        args.push(raw_args.offset(i));
+    }
+
+    closure(runtime, &this, &args, count)
 }
 
 // TODO: (@hahnlee) provide high bind level API
@@ -50,12 +67,19 @@ impl Function {
         closure: F,
     ) -> Function
     where
-        F: FnMut(*const T, *const Value, *const Value, libc::size_t) -> *const Value,
+        F: FnMut(*const T, &Local<'_, Value>, &Vec<Local<'_, Value>>, usize) -> *const Value,
         F: 'static,
     {
         let name = PropNameID::from_str(runtime, name);
         let cb: Box<
-            Box<dyn FnMut(*const T, *const Value, *const Value, libc::size_t) -> *const Value>,
+            Box<
+                dyn FnMut(
+                    *const T,
+                    &Local<'_, Value>,
+                    &Vec<Local<'_, Value>>,
+                    usize,
+                ) -> *const Value,
+            >,
         > = Box::new(Box::new(closure));
 
         unsafe {
@@ -97,9 +121,8 @@ mod test {
 
                 let runtime = HermesRuntime::from_raw(runtime_ptr);
 
-                // TODO: (@hahnlee) move to `from_host_function` side
-                let first = Value::from_raw(args);
-                let second = Value::from_raw(first.offset(1));
+                let first = &args[0];
+                let second = &args[1];
 
                 assert_eq!(runtime.is_inspectable(), true);
 

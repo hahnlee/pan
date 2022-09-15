@@ -10,7 +10,7 @@ use std::ops::Deref;
 
 extern "C" {
     fn hermes__makeHermesRuntime() -> *mut HermesRuntime;
-    fn hermes__runtime_isHermesBytecode(data: *const u8, len: libc::size_t) -> bool;
+    fn hermes__runtime_isHermesBytecode(data: *const u8, len: usize) -> bool;
     fn hermes__runtime_isInspectable(runtime: *const HermesRuntime) -> bool;
     fn hermes__runtime_getBytecodeVersion() -> u32;
     fn hermes__runtime_evaluateJavaScript(
