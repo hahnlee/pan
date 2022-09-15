@@ -1,6 +1,8 @@
 <img src="./assets/logo.jpg" alt="Pan logo" width="25%" />
 
 # Pan
+> Son of the Hermes
+
 Yet another JavaScript runtime powered by Hermes. Pan is built to support [positron](https://github.com/hahnlee/positron)
 
 # Motivation
