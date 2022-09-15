@@ -29,3 +29,8 @@ I hope one day we can write wasm in JS and link it with the electron/tauri API, 
 # Note
 - This is a POC framework.
 - It only works on macOS.
+
+# LICENSE
+- MIT (code)
+- CC BY-SA 4.0 (logo image)
+  - [Original Image](https://en.wikipedia.org/wiki/Pan_(god)#/media/File:Archive-ugent-be-E898690E-0C16-11E3-8D98-58C697481370_DS-24_(2).jpg)
