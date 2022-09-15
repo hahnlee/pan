@@ -1,11 +1,11 @@
 use crate::handle::Local;
-use crate::jsi::runtime::Runtime;
 use crate::support::Opaque;
 
 extern "C" {
     fn jsi__value_new_number(value: f64) -> *const Value;
     fn jsi__value_is_undefined(value: *const Value) -> bool;
-    fn jsi__value_is_number(value: *const Value, runtime: *const libc::c_void) -> bool;
+    fn jsi__value_is_number(value: *const Value) -> bool;
+    fn jsi__value_is_string(value: *const Value) -> bool;
     fn jsi__value_delete(value: *const Value);
     fn jsi__value_as_number(value: *const Value) -> f64;
     fn jsi__offset_from_ptr(ptr: *const Value, offset: usize) -> *const Value;
@@ -28,8 +28,12 @@ impl Value {
         unsafe { jsi__value_is_undefined(&*self) }
     }
 
-    pub fn is_number<T: Runtime>(&self, runtime: &T) -> bool {
-        unsafe { jsi__value_is_number(&*self, runtime as *const _ as *const libc::c_void) }
+    pub fn is_number(&self) -> bool {
+        unsafe { jsi__value_is_number(&*self) }
+    }
+
+    pub fn is_string(&self) -> bool {
+        unsafe { jsi__value_is_string(&*self) }
     }
 
     pub fn as_number(&self) -> f64 {

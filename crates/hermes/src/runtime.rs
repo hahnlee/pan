@@ -134,7 +134,7 @@ mod tests {
     fn check_evaluate_javascript() {
         let runtime = OwnedHermesRuntime::new();
         let value = runtime.evaluate_javascript(StringBuffer::new("1 + 1").deref(), "");
-        assert_eq!(value.is_number(runtime.deref()), true);
+        assert_eq!(value.is_number(), true);
         assert_eq!(value.as_number(), 2.0);
     }
 
@@ -144,7 +144,7 @@ mod tests {
         runtime.evaluate_javascript(StringBuffer::new("x = 321").deref(), "");
         let global = runtime.global();
         let value = global.get_property::<HermesRuntime>(&runtime, "x");
-        assert_eq!(value.is_number(runtime.deref()), true);
+        assert_eq!(value.is_number(), true);
         assert_eq!(value.as_number(), 321.0);
     }
 }

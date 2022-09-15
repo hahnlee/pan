@@ -101,9 +101,14 @@ extern "C"
     return value->isUndefined();
   }
 
-  bool jsi__value_is_number(Value *value, HermesRuntime *runtime)
+  bool jsi__value_is_number(Value *value)
   {
     return value->isNumber();
+  }
+
+  bool jsi__value_is_string(Value *value)
+  {
+    return value->isString();
   }
 
   double jsi__value_as_number(Value *self)
