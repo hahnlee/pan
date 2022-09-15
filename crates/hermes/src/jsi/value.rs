@@ -36,6 +36,7 @@ impl Value {
         unsafe { jsi__value_asNumber(&*self) }
     }
 
+    // TODO?: (@hahnlee) this function looks like unnecessary
     pub fn offset(&self, offset: usize) -> *const Value {
         unsafe { jsi__offset_from_ptr(&*self, offset) }
     }

@@ -97,6 +97,7 @@ mod test {
 
                 let runtime = HermesRuntime::from_raw(runtime_ptr);
 
+                // TODO: (@hahnlee) move to `from_host_function` side
                 let first = Value::from_raw(args);
                 let second = Value::from_raw(first.offset(1));
 
