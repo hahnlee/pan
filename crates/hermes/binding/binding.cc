@@ -22,9 +22,9 @@ extern "C"
     return str->data();
   }
 
-  bool hermes__compile_js(const char *str, const char *&data, size_t &size, bool optimize)
+  bool hermes__compile_js(const char *str, size_t code_size, const char *&data, size_t &size, bool optimize)
   {
-    std::string code = std::string(str);
+    std::string code = std::string(str, code_size);
     std::string bytecode;
 
     bool result = hermes::compileJS(code, bytecode, optimize);
@@ -62,9 +62,9 @@ extern "C"
     delete runtime;
   }
 
-  Value *hermes__runtime_evaluate_javascript(HermesRuntime *runtime, Buffer *buffer, const char *sourceURL)
+  Value *hermes__runtime_evaluate_javascript(HermesRuntime *runtime, Buffer *buffer, const char *source_url, size_t size)
   {
-    Value value = runtime->evaluateJavaScript(std::shared_ptr<Buffer>(buffer), std::string(sourceURL));
+    Value value = runtime->evaluateJavaScript(std::shared_ptr<Buffer>(buffer), std::string(source_url, size));
     return new Value(std::move(value));
   }
 
@@ -74,9 +74,9 @@ extern "C"
     return new Object(std::move(object));
   }
 
-  StringBuffer *jsi__string_buffer_new(const char *data)
+  StringBuffer *jsi__string_buffer_new(const char *data, size_t size)
   {
-    std::string code = std::string(data);
+    std::string code = std::string(data, size);
     StringBuffer *buffer = new StringBuffer(code);
     return buffer;
   }
@@ -119,6 +119,12 @@ extern "C"
   void jsi__value_delete(Value *value)
   {
     delete value;
+  }
+
+  std::string *jsi__value_to_bytes(Value *value, Runtime *runtime, size_t &size)
+  {
+    std::string string = value->toString(*runtime).utf8(*runtime);
+    return new std::string(move(string));
   }
 
   Value *jsi__offset_from_ptr(Value *value, size_t offset)

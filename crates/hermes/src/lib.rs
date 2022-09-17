@@ -5,11 +5,10 @@ pub mod runtime;
 mod cpp;
 mod support;
 
-use std::ffi::CString;
-
 extern "C" {
     fn hermes__compile_js(
-        code: *const i8,
+        code: *const u8,
+        code_size: usize,
         data: &*mut u8,
         size: *mut usize,
         optimize: bool,
@@ -20,9 +19,8 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
     let bytecode = std::ptr::null_mut::<u8>();
     let mut size: usize = 0;
 
-    let code = CString::new(code).unwrap();
-
-    let result = unsafe { hermes__compile_js(code.as_ptr(), &bytecode, &mut size, optimize) };
+    let result =
+        unsafe { hermes__compile_js(code.as_ptr(), code.len(), &bytecode, &mut size, optimize) };
     if !result {
         return Err(());
     }

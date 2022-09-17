@@ -1,4 +1,6 @@
+use crate::cpp::string::CppString;
 use crate::handle::Local;
+use crate::jsi::runtime::Runtime;
 use crate::support::Opaque;
 
 extern "C" {
@@ -9,6 +11,11 @@ extern "C" {
     fn jsi__value_delete(value: *const Value);
     fn jsi__value_as_number(value: *const Value) -> f64;
     fn jsi__offset_from_ptr(ptr: *const Value, offset: usize) -> *const Value;
+    fn jsi__value_to_bytes(
+        prt: *const Value,
+        runtime: *const libc::c_void,
+        size: *mut usize,
+    ) -> *const libc::c_void;
 }
 
 #[repr(C)]
@@ -40,6 +47,20 @@ impl Value {
         unsafe { jsi__value_as_number(&*self) }
     }
 
+    pub fn to_string<T: Runtime>(&self, runtime: &T) -> String {
+        let mut size: usize = 0;
+        let ptr = unsafe {
+            jsi__value_to_bytes(
+                &*self,
+                &*runtime as *const _ as *const libc::c_void,
+                &mut size,
+            )
+        };
+
+        let str = CppString::from_raw(ptr);
+        str.to_string()
+    }
+
     // TODO?: (@hahnlee) this function looks like unnecessary
     pub fn offset<'s>(&self, offset: usize) -> Local<'s, Value> {
         unsafe { Value::from_raw(jsi__offset_from_ptr(&*self, offset)) }
@@ -49,5 +70,23 @@ impl Value {
 impl Drop for Value {
     fn drop(&mut self) {
         unsafe { jsi__value_delete(&*self) }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ops::Deref;
+
+    use crate::{
+        jsi::{buffer::StringBuffer, runtime::Runtime},
+        runtime::OwnedHermesRuntime,
+    };
+
+    #[test]
+    fn check_to_str() {
+        let runtime = OwnedHermesRuntime::new();
+        let value = runtime.evaluate_javascript(StringBuffer::new("'buffer\0test'").deref(), "");
+        let out = value.to_string(runtime.deref());
+        assert_eq!(out, "buffer\0test");
     }
 }

@@ -36,6 +36,10 @@ impl CppString {
     pub fn to_str(&mut self) -> &str {
         unsafe { std::str::from_utf8_unchecked(self.to_bytes()) }
     }
+
+    pub fn to_string(self) -> String {
+        unsafe { String::from_utf8_unchecked(self.to_bytes().to_vec()) }
+    }
 }
 
 impl Drop for CppString {

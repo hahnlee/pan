@@ -5,7 +5,6 @@ use crate::jsi::runtime::Runtime;
 use crate::jsi::value::Value;
 use crate::support::Opaque;
 
-use std::ffi::CString;
 use std::ops::Deref;
 
 extern "C" {
@@ -16,7 +15,8 @@ extern "C" {
     fn hermes__runtime_evaluate_javascript(
         runtime: *const HermesRuntime,
         buffer: *const libc::c_void,
-        source_url: *const libc::c_char,
+        source_url: *const u8,
+        source_url_size: usize,
     ) -> *const Value;
     fn hermes__runtime_global(runtime: *const HermesRuntime) -> *const Object;
     fn hermes__runtime_delete(runtime: *const HermesRuntime);
@@ -54,14 +54,13 @@ impl HermesRuntime {
 
 impl Runtime for HermesRuntime {
     fn evaluate_javascript<T: Buffer>(&self, buffer: &T, source_url: &str) -> Local<'_, Value> {
-        let source_url = CString::new(source_url).unwrap();
-
         unsafe {
             Local::from_raw(hermes__runtime_evaluate_javascript(
                 &*self,
                 // FIXME: (@hahnlee)
                 &*buffer as *const _ as *const libc::c_void,
                 source_url.as_ptr(),
+                source_url.len(),
             ))
             .unwrap()
         }
