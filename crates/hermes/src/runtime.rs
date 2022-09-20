@@ -57,8 +57,7 @@ impl Runtime for HermesRuntime {
         unsafe {
             Local::from_raw(hermes__runtime_evaluate_javascript(
                 &*self,
-                // FIXME: (@hahnlee)
-                &*buffer as *const _ as *const libc::c_void,
+                buffer.to_ptr(),
                 source_url.as_ptr(),
                 source_url.len(),
             ))
@@ -100,6 +99,7 @@ impl Drop for OwnedHermesRuntime {
 
 #[cfg(test)]
 mod tests {
+    use crate::buffer::MemoryBuffer;
     use crate::compile_js;
     use crate::jsi::buffer::StringBuffer;
     use crate::jsi::runtime::Runtime;
@@ -133,6 +133,16 @@ mod tests {
     fn check_evaluate_javascript() {
         let runtime = OwnedHermesRuntime::new();
         let value = runtime.evaluate_javascript(StringBuffer::new("1 + 1").deref(), "");
+        assert_eq!(value.is_number(), true);
+        assert_eq!(value.as_number(), 2.0);
+    }
+
+    #[test]
+    fn check_evaluate_buffer() {
+        let runtime = OwnedHermesRuntime::new();
+        let bytes = "1 + 1".as_bytes();
+        let buffer = MemoryBuffer::from_bytes(bytes);
+        let value = runtime.evaluate_javascript(&buffer, "test");
         assert_eq!(value.is_number(), true);
         assert_eq!(value.as_number(), 2.0);
     }

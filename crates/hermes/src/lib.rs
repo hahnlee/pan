@@ -1,3 +1,4 @@
+pub mod buffer;
 pub mod handle;
 pub mod jsi;
 pub mod runtime;

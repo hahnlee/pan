@@ -5,6 +5,26 @@
 using namespace facebook::hermes;
 using namespace facebook::jsi;
 
+class MemoryBuffer : public facebook::jsi::Buffer
+{
+public:
+  MemoryBuffer(const uint8_t *data, size_t size) : data_(data), size_(size) {}
+
+  const uint8_t *data() const
+  {
+    return data_;
+  };
+
+  size_t size() const
+  {
+    return size_;
+  }
+
+protected:
+  const uint8_t *data_;
+  size_t size_;
+};
+
 extern "C"
 {
   void cpp_string_destroy(std::string *str)
@@ -169,5 +189,15 @@ extern "C"
     };
     Function fn = Function::createFromHostFunction(*runtime, *name, paramCount, cb);
     return new Function(std::move(fn));
+  }
+
+  MemoryBuffer *memory_buffer__new(const uint8_t *data, size_t size)
+  {
+    return new MemoryBuffer(data, size);
+  }
+
+  size_t memory_buffer__size(MemoryBuffer *buffer)
+  {
+    return buffer->size();
   }
 }

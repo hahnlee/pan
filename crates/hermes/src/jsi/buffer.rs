@@ -9,6 +9,7 @@ extern "C" {
 
 pub trait Buffer {
     fn size(&self) -> usize;
+    fn to_ptr(&self) -> *const libc::c_void;
 }
 
 #[repr(C)]
@@ -24,6 +25,10 @@ impl StringBuffer {
 impl Buffer for StringBuffer {
     fn size(&self) -> usize {
         unsafe { jsi__string_buffer_size(&*self) }
+    }
+
+    fn to_ptr(&self) -> *const libc::c_void {
+        &*self as *const _ as *const libc::c_void
     }
 }
 
