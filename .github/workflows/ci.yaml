@@ -2,10 +2,10 @@ name: CI
 on:
   pull_request:
     paths:
-      crates/**
-      Cargo.lock
-      Cargo.toml
-      .gitmodules
+      - crates/**
+      - Cargo.lock
+      - Cargo.toml
+      - .gitmodules
 
 concurrency:
   group: pr-${{ github.ref }}
