@@ -58,7 +58,7 @@ extern "C" fn c_callback(
     closure(runtime, &this, &args, count)
 }
 
-// TODO: (@hahnlee) provide high bind level API
+// TODO: (@hahnlee) provide high level bind API
 impl Function {
     pub fn from_host_function<T: Runtime, F>(
         runtime: &T,
@@ -68,7 +68,6 @@ impl Function {
     ) -> Function
     where
         F: FnMut(*const T, &Local<'_, Value>, &Vec<Local<'_, Value>>, usize) -> *const Value,
-        F: 'static,
     {
         let name = PropNameID::from_str(runtime, name);
         let cb: Box<
