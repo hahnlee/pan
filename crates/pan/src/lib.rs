@@ -1,22 +1,16 @@
-use std::fs;
+use runtime::PanRuntime;
 
-use hermes::buffer::MemoryBuffer;
-use hermes::jsi::runtime::Runtime;
-use hermes::runtime::HermesRuntime;
-use hermes::runtime::OwnedHermesRuntime;
-
+pub mod runtime;
 pub mod version;
 
+mod module;
+
 // TODO: (@hahnlee) provide FFI function
-pub fn initialize() -> OwnedHermesRuntime {
-    OwnedHermesRuntime::new()
+pub fn initialize() -> PanRuntime {
+    PanRuntime::new()
 }
 
 // TODO: (@hahnlee) provide error code for FFI
-pub fn run_js(runtime: &HermesRuntime, file_path: &str) {
-    let file = fs::read(file_path).unwrap();
-    let buffer = MemoryBuffer::from_bytes(&file);
-
-    // FIXME: (@hahnlee) convert file_path to url
-    runtime.evaluate_javascript(&buffer, file_path);
+pub fn run_js(runtime: &mut PanRuntime, file_path: &str) {
+   runtime.run(file_path);
 }
