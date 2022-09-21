@@ -3,16 +3,17 @@ on: [pull_request]
 concurrency:
   group: pr-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   test:
     runs-on: macos-latest
     steps:
-      - name: Setup | Checkout
+      - name: Set up checkout
         uses: actions/checkout@v2
         with:
           submodules: true
 
-      - name: Setup | Cache Cargo
+      - name: Set up cache cargo
         uses: actions/cache@v2
         with:
           path: |
@@ -23,15 +24,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Setup | Build tools
+      - name: Set up build tools
         run: brew install cmake git ninja
 
-      - name: Setup | Rust
+      - name: Set up rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
           target: wasm32-unknown-unknown
 
-      - name: Build | Test
+      - name: Test
         run: cargo test
