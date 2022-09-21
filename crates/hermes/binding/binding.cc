@@ -42,16 +42,17 @@ extern "C"
     return str->data();
   }
 
+  // FIXME: (@hahnlee) use pointer
   bool hermes__compile_js(const char *str, size_t code_size, const char *&data, size_t &size, bool optimize)
   {
     std::string code = std::string(str, code_size);
-    std::string bytecode;
+    std::string* bytecode = new std::string();
 
-    bool result = hermes::compileJS(code, bytecode, optimize);
+    bool result = hermes::compileJS(code, *bytecode, optimize);
     if (result)
     {
-      data = bytecode.data();
-      size = bytecode.size();
+      data = bytecode->data();
+      size = bytecode->size();
     }
 
     return result;
