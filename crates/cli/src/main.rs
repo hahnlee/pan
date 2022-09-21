@@ -1,5 +1,12 @@
-use pan::version::get_version;
+use std::env;
+
+use pan::initialize;
+use pan::run_js;
 
 fn main() {
-    println!("{}", get_version());
+    let args: Vec<String> = env::args().collect();
+    let file_path = &args[1];
+
+    let runtime = initialize();
+    run_js(&runtime, file_path);
 }
