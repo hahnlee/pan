@@ -13,15 +13,15 @@ pub struct PanRuntime {
 }
 
 impl PanRuntime {
-    pub fn new() -> PanRuntime {
-        let mut runtime = PanRuntime {
+    pub fn new() -> Self {
+        Self {
             hermes: OwnedHermesRuntime::new(),
             stack: Vec::new(),
-        };
+        }
+    }
 
-        bind_require(&mut runtime);
-
-        return runtime;
+    pub fn initialize(&mut self) {
+        bind_require(self);
     }
 
     pub fn run(&mut self, file_path: &str) {
