@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v2
+        submodules: true
 
       - name: Setup | Cache Cargo
         uses: actions/cache@v2
