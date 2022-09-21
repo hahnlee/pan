@@ -14,14 +14,14 @@ I was drawn to the hermes engine's features to compile JS to bytecode and run it
 
 # Status
 - **Extremely unstable**
-- Support execute js/hbc file
-- Support require function
-- Support **some** node core module
+- Support execute js/hbc files
+- Support the require function
+- Support **some** node core modules
 
 # Goals
 - **Compatibility with Node.js**
-- Support .hbc import and export
-- Support Node.js core module
+- Support .hbc files import and export
+- Support Node.js core modules
 - Support Node API (N-API)
 - Support CommonJS with Node Module Resolution
 
