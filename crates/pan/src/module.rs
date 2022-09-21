@@ -24,7 +24,13 @@ pub fn bind_require(pan: &mut PanRuntime) {
             let absolute_path = PathBuf::from(module_path).canonicalize().unwrap();
 
             let file = fs::read(&absolute_path).unwrap();
-            let buffer = MemoryBuffer::from_bytes(&file);
+            // FIXME: (@hahnlee) to util
+            let data = if file[file.len() - 1] != 0 {
+                [file, vec![0]].concat()
+            } else {
+                file
+            };
+            let buffer = MemoryBuffer::from_bytes(&data);
             let source_url = format!("file://{}", absolute_path.to_str().unwrap());
 
             pan.stack.push(absolute_path);

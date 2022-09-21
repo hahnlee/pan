@@ -28,7 +28,14 @@ impl PanRuntime {
         let file_path = PathBuf::from(file_path).canonicalize().unwrap();
 
         let file = fs::read(&file_path).unwrap();
-        let buffer = MemoryBuffer::from_bytes(&file);
+        // FIXME: (@hahnlee) to util
+        let data = if file[file.len() - 1] != 0 {
+            [file, vec![0]].concat()
+        } else {
+            file
+        };
+
+        let buffer = MemoryBuffer::from_bytes(&data);
 
         let source_url = format!("file://{}", file_path.to_str().unwrap());
 
