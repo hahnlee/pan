@@ -14,7 +14,8 @@ pub struct MemoryBuffer(*const InternalMemoryBuffer);
 
 impl MemoryBuffer {
     pub fn from_bytes(data: &[u8]) -> Self {
-        unsafe { MemoryBuffer(memory_buffer__new(data.as_ptr(), data.len())) }
+        // FIXME: (@hahnlee) add assert
+        unsafe { MemoryBuffer(memory_buffer__new(data.as_ptr(), data.len() - 1)) }
     }
 }
 
