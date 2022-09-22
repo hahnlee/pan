@@ -5,8 +5,10 @@ use crate::support::Opaque;
 
 use std::ffi::CString;
 
+use super::function::{Function, InternalFunction};
+
 extern "C" {
-    fn jsi__object_delete(object: *const Object);
+    fn jsi__object_new(runtime: *const libc::c_void) -> *const Object;
     fn jsi__object_get_property(
         Object: *const Object,
         runtime: *const libc::c_void,
@@ -16,8 +18,20 @@ extern "C" {
         Object: *const Object,
         runtime: *const libc::c_void,
         name: *const libc::c_char,
+        value: *const Value,
+    );
+    fn jsi__object_set_function(
+        Object: *const Object,
+        runtime: *const libc::c_void,
+        name: *const libc::c_char,
         value: *const libc::c_void,
     );
+    fn jsi__object_as_function(
+        Object: *const Object,
+        runtime: *const libc::c_void,
+    ) -> *const InternalFunction;
+    fn jsi__object_to_value(Object: *const Object, runtime: *const libc::c_void) -> *const Value;
+    fn jsi__object_delete(object: *const Object);
 }
 
 #[repr(C)]
@@ -25,6 +39,14 @@ extern "C" {
 pub struct Object(Opaque);
 
 impl Object {
+    pub fn new<'s, T: Runtime>(runtime: &T) -> Local<'s, Object> {
+        unsafe {
+            Object::from_raw(jsi__object_new(
+                &*runtime as *const _ as *const libc::c_void,
+            ))
+        }
+    }
+
     pub fn from_raw<'s>(ptr: *const Object) -> Local<'s, Object> {
         unsafe { Local::from_raw(ptr).unwrap() }
     }
@@ -41,7 +63,7 @@ impl Object {
         }
     }
 
-    pub fn set_property<T: Runtime>(&self, runtime: &T, name: &str, value: *const libc::c_void) {
+    pub fn set_property<T: Runtime>(&self, runtime: &T, name: &str, value: &Value) {
         let name = CString::new(name).unwrap();
 
         unsafe {
@@ -49,9 +71,44 @@ impl Object {
                 &*self,
                 &*runtime as *const _ as *const libc::c_void,
                 name.as_ptr(),
-                value,
+                &*value,
             );
         }
+    }
+
+    pub fn set_function<T: Runtime>(&self, runtime: &T, name: &str, function: Function) {
+        let name = CString::new(name).unwrap();
+
+        unsafe {
+            jsi__object_set_function(
+                &*self,
+                &*runtime as *const _ as *const libc::c_void,
+                name.as_ptr(),
+                function.to_ptr(),
+            );
+        }
+    }
+
+    pub fn as_function<T: Runtime>(&self, runtime: &T) -> Function {
+        unsafe {
+            Function::from_raw(jsi__object_as_function(
+                &*self,
+                &*runtime as *const _ as *const libc::c_void,
+            ))
+        }
+    }
+
+    pub fn to_value<'s, T: Runtime>(&self, runtime: &T) -> Local<'s, Value> {
+        unsafe {
+            Value::from_raw(jsi__object_to_value(
+                &*self,
+                &*runtime as *const _ as *const libc::c_void,
+            ))
+        }
+    }
+
+    pub fn to_ptr(&self) -> *const libc::c_void {
+        &*self as *const _ as *const libc::c_void
     }
 }
 

@@ -46,7 +46,7 @@ extern "C"
   bool hermes__compile_js(const char *str, size_t code_size, const char *&data, size_t &size, bool optimize)
   {
     std::string code = std::string(str, code_size);
-    std::string* bytecode = new std::string();
+    std::string *bytecode = new std::string();
 
     bool result = hermes::compileJS(code, *bytecode, optimize);
     if (result)
@@ -112,7 +112,12 @@ extern "C"
     delete buffer;
   }
 
-  Value *jsi__value_new_number(double value)
+  Value *jsi__value_from_string(Runtime *runtime, const uint8_t *str, size_t size)
+  {
+    return new Value(*runtime, String::createFromUtf8(*runtime, str, size));
+  }
+
+  Value *jsi__value_from_number(double value)
   {
     return new Value(value);
   }
@@ -137,6 +142,12 @@ extern "C"
     return self->asNumber();
   }
 
+  Object *jsi__value_as_object(Value *self, Runtime *runtime)
+  {
+    Object object = self->asObject(*runtime);
+    return new Object(std::move(object));
+  }
+
   void jsi__value_delete(Value *value)
   {
     delete value;
@@ -153,15 +164,36 @@ extern "C"
     return &value[offset];
   }
 
+  Object *jsi__object_new(Runtime *runtime)
+  {
+    return new Object(*runtime);
+  }
+
   Value *jsi__object_get_property(Object *self, Runtime *runtime, const char *name)
   {
     Value value = self->getProperty(*runtime, name);
     return new Value(std::move(value));
   }
 
-  void jsi__object_set_property(Object *self, Runtime *runtime, const char *name, Function *value)
+  void jsi__object_set_property(Object *self, Runtime *runtime, const char *name, Value *value)
   {
     self->setProperty(*runtime, name, *value);
+  }
+
+  Value *jsi__object_to_value(Object *self, Runtime *runtime)
+  {
+    return new Value(*runtime, *self);
+  }
+
+  void jsi__object_set_function(Object *self, Runtime *runtime, const char *name, Function *function)
+  {
+    self->setProperty(*runtime, name, *function);
+  }
+
+  Function *jsi__object_as_function(Object *self, Runtime *runtime)
+  {
+    Function function = self->asFunction(*runtime);
+    return new Function(std::move(function));
   }
 
   void jsi__object_delete(Object *object)
@@ -190,6 +222,12 @@ extern "C"
     };
     Function fn = Function::createFromHostFunction(*runtime, *name, paramCount, cb);
     return new Function(std::move(fn));
+  }
+
+  Value *jsi__function_call(Function *self, Runtime *runtime, const Value *args[], size_t count)
+  {
+    Value value = self->call(*runtime, args, count);
+    return new Value(std::move(value));
   }
 
   MemoryBuffer *memory_buffer__new(const uint8_t *data, size_t size)

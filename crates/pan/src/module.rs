@@ -1,6 +1,8 @@
 use hermes::buffer::MemoryBuffer;
 use hermes::jsi::function::Function;
+use hermes::jsi::object::Object;
 use hermes::jsi::runtime::Runtime;
+use hermes::jsi::value::Value;
 use hermes::runtime::HermesRuntime;
 
 use std::fs;
@@ -8,6 +10,55 @@ use std::ops::Deref;
 use std::path::PathBuf;
 
 use crate::runtime::PanRuntime;
+
+const MODULE_PREFIX: &[u8] = "(function(exports, module, __filename, __dirname) {".as_bytes();
+const MODULE_SUFFIX: &[u8] = "});".as_bytes();
+
+pub fn evaluate_module(
+    runtime: &HermesRuntime,
+    absolute_path: PathBuf,
+    stack: &mut Vec<PathBuf>,
+) -> *const Value {
+    let file = fs::read(&absolute_path).unwrap();
+
+    let data = [MODULE_PREFIX, &file, MODULE_SUFFIX, &[0]].concat();
+    let buffer = MemoryBuffer::from_bytes(&data);
+
+    let parent = absolute_path
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string();
+    let path = absolute_path.to_str().unwrap().to_string();
+    let source_url = format!("file://{}", path);
+
+    stack.push(absolute_path);
+
+    let module = runtime.evaluate_javascript(&buffer, &source_url);
+
+    let function = module.as_object(runtime).as_function(runtime);
+
+    let module = Object::new(runtime);
+    let exports = Object::new(runtime).to_value(runtime);
+
+    module.set_property(runtime, "exports", exports.deref());
+    let module = module.to_value(runtime);
+
+    function.call(
+        runtime,
+        &[
+            exports,
+            module,
+            Value::from_str(&path, runtime),
+            Value::from_str(&parent, runtime),
+        ],
+    );
+
+    stack.pop();
+
+    return exports.deref();
+}
 
 pub fn bind_require(pan: &mut PanRuntime) {
     let require = Function::from_host_function(
@@ -23,28 +74,14 @@ pub fn bind_require(pan: &mut PanRuntime) {
             let module_path = find_module_path(&current_path, &name).unwrap();
             let absolute_path = PathBuf::from(module_path).canonicalize().unwrap();
 
-            let file = fs::read(&absolute_path).unwrap();
-            // FIXME: (@hahnlee) to util
-            let data = if file[file.len() - 1] != 0 {
-                [file, vec![0]].concat()
-            } else {
-                file
-            };
-            let buffer = MemoryBuffer::from_bytes(&data);
-            let source_url = format!("file://{}", absolute_path.to_str().unwrap());
-
-            pan.stack.push(absolute_path);
-            let value = runtime.evaluate_javascript(&buffer, &source_url);
-            pan.stack.pop();
-
-            return value.deref();
+            evaluate_module(&runtime, absolute_path, &mut pan.stack)
         },
     );
 
     pan.hermes
         .deref()
         .global()
-        .set_property(pan.hermes.deref(), "require", require.to_ptr());
+        .set_function(pan.hermes.deref(), "require", require);
 }
 
 fn find_module_path(current: &PathBuf, module: &str) -> Result<String, ()> {

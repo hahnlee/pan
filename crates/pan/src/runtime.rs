@@ -1,12 +1,11 @@
-use std::fs;
 use std::path::PathBuf;
 
-use hermes::buffer::MemoryBuffer;
-use hermes::jsi::runtime::Runtime;
+use hermes::jsi::value::Value;
 use hermes::runtime::OwnedHermesRuntime;
 
-use crate::module::bind_require;
+use crate::module::{bind_require, evaluate_module};
 
+#[derive(Debug)]
 pub struct PanRuntime {
     pub hermes: OwnedHermesRuntime,
     pub stack: Vec<PathBuf>,
@@ -24,24 +23,8 @@ impl PanRuntime {
         bind_require(self);
     }
 
-    pub fn run(&mut self, file_path: &str) {
-        let file_path = PathBuf::from(file_path).canonicalize().unwrap();
-
-        let file = fs::read(&file_path).unwrap();
-        // FIXME: (@hahnlee) to util
-        let data = if file[file.len() - 1] != 0 {
-            [file, vec![0]].concat()
-        } else {
-            file
-        };
-
-        let buffer = MemoryBuffer::from_bytes(&data);
-
-        let source_url = format!("file://{}", file_path.to_str().unwrap());
-
-        self.stack.push(file_path);
-        self.hermes
-            .evaluate_javascript(&buffer, source_url.as_str());
-        self.stack.pop();
+    pub fn run(&mut self, file_path: &str) -> *const Value {
+        let absolute_path = PathBuf::from(file_path).canonicalize().unwrap();
+        evaluate_module(&self.hermes, absolute_path, &mut self.stack)
     }
 }

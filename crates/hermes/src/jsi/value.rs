@@ -1,15 +1,22 @@
 use crate::cpp::string::CppString;
 use crate::handle::Local;
+use crate::jsi::object::Object;
 use crate::jsi::runtime::Runtime;
 use crate::support::Opaque;
 
 extern "C" {
-    fn jsi__value_new_number(value: f64) -> *const Value;
+    fn jsi__value_from_string(
+        runtime: *const libc::c_void,
+        ptr: *const u8,
+        size: usize,
+    ) -> *const Value;
+    fn jsi__value_from_number(value: f64) -> *const Value;
     fn jsi__value_is_undefined(value: *const Value) -> bool;
     fn jsi__value_is_number(value: *const Value) -> bool;
     fn jsi__value_is_string(value: *const Value) -> bool;
     fn jsi__value_delete(value: *const Value);
     fn jsi__value_as_number(value: *const Value) -> f64;
+    fn jsi__value_as_object(value: *const Value, runtime: *const libc::c_void) -> *const Object;
     fn jsi__offset_from_ptr(ptr: *const Value, offset: usize) -> *const Value;
     fn jsi__value_to_bytes(
         prt: *const Value,
@@ -23,8 +30,18 @@ extern "C" {
 pub struct Value(Opaque);
 
 impl Value {
+    pub fn from_str<'s, T: Runtime>(string: &str, runtime: &T) -> Local<'s, Value> {
+        unsafe {
+            Value::from_raw(jsi__value_from_string(
+                &*runtime as *const _ as *const libc::c_void,
+                string.as_ptr(),
+                string.len(),
+            ))
+        }
+    }
+
     pub fn from_number<'s>(number: f64) -> Local<'s, Value> {
-        unsafe { Value::from_raw(jsi__value_new_number(number)) }
+        unsafe { Value::from_raw(jsi__value_from_number(number)) }
     }
 
     pub fn from_raw<'s>(ptr: *const Value) -> Local<'s, Value> {
@@ -45,6 +62,16 @@ impl Value {
 
     pub fn as_number(&self) -> f64 {
         unsafe { jsi__value_as_number(&*self) }
+    }
+
+    pub fn as_object<'s, T: Runtime>(&self, runtime: &T) -> Local<'s, Object> {
+        println!("changed");
+        unsafe {
+            Object::from_raw(jsi__value_as_object(
+                &*self,
+                &*runtime as *const _ as *const libc::c_void,
+            ))
+        }
     }
 
     pub fn to_string<T: Runtime>(&self, runtime: &T) -> String {
