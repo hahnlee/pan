@@ -65,7 +65,6 @@ impl Value {
     }
 
     pub fn as_object<'s, T: Runtime>(&self, runtime: &T) -> Local<'s, Object> {
-        println!("changed");
         unsafe {
             Object::from_raw(jsi__value_as_object(
                 &*self,
