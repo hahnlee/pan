@@ -5,6 +5,8 @@
 
 Yet another JavaScript runtime powered by Hermes. Pan is built to support [positron](https://github.com/hahnlee/positron)
 
+[![asciicast](https://asciinema.org/a/kkoDo1bleQXLiGATWP6wz9Pxg.svg)](https://asciinema.org/a/kkoDo1bleQXLiGATWP6wz9Pxg)
+
 # Motivation
 Just for Fun! ...but, I was inspired by the following reasons:
 
