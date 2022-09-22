@@ -20,8 +20,9 @@ pub fn compile_js(code: &str, optimize: bool) -> Result<&[u8], ()> {
     let bytecode = std::ptr::null_mut::<u8>();
     let mut size: usize = 0;
 
-    let result =
-        unsafe { hermes__compile_js(code.as_ptr(), code.len(), &bytecode, &mut size, optimize) };
+    let len = if code.ends_with("\0") { code.len() - 1 } else { code.len() };
+
+    let result = unsafe { hermes__compile_js(code.as_ptr(), len, &bytecode, &mut size, optimize) };
     if !result {
         return Err(());
     }

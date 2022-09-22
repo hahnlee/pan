@@ -13,8 +13,8 @@ use std::path::PathBuf;
 
 use crate::runtime::PanRuntime;
 
-const MODULE_PREFIX: &[u8] = "(function(exports, module, __filename, __dirname) {".as_bytes();
-const MODULE_SUFFIX: &[u8] = "});".as_bytes();
+const MODULE_PREFIX: &[u8] = "(function(exports, module, __filename, __dirname) {\n".as_bytes();
+const MODULE_SUFFIX: &[u8] = "\n});".as_bytes();
 
 pub fn wrap_module_code(data: &[u8]) -> Vec<u8> {
     [MODULE_PREFIX, data, MODULE_SUFFIX, &[0]].concat()
@@ -37,8 +37,11 @@ pub fn evaluate_module(
     }
 
     let file = fs::read(&absolute_path).unwrap();
+    let data = match path.ends_with(".hbc") {
+        true => [file, vec![0]].concat(),
+        false => wrap_module_code(&file),
+    };
 
-    let data = wrap_module_code(&file);
     let buffer = MemoryBuffer::from_bytes(&data);
 
     let parent = absolute_path
