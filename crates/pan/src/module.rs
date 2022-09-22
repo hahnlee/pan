@@ -96,6 +96,11 @@ fn find_module_path(current: &PathBuf, module: &str) -> Result<String, ()> {
         if file.is_ok() {
             return file;
         }
+
+        let dir = load_as_directory(&base_path.as_str());
+        if dir.is_ok() {
+            return dir;
+        }
     }
 
     Err(())
@@ -121,7 +126,7 @@ fn load_as_file(path: &str) -> Result<String, ()> {
         return Ok(path.to_string());
     }
 
-    // NOTE: (@hahnlee)
+    // NOTE: (@hahnlee) .hbc file has higher property
     let hbc = format!("{}.hbc", path);
     if PathBuf::from(&hbc).is_file() {
         return Ok(hbc);
@@ -138,6 +143,47 @@ fn load_as_file(path: &str) -> Result<String, ()> {
     }
 
     let node = format!("{}.node", path);
+    if PathBuf::from(&node).is_file() {
+        return Ok(node);
+    }
+
+    Err(())
+}
+
+/// LOAD_AS_DIRECTORY
+///
+/// [reference](https://nodejs.org/api/modules.html#all-together)
+fn load_as_directory(path: &str) -> Result<String, ()> {
+    let package_json = format!("{}/package.json", path);
+    if PathBuf::from(&package_json).is_file() {
+        // TODO: (@hahnlee) impl package.json
+        return Err(());
+    }
+
+    return load_index(path);
+}
+
+/// LOAD_INDEX
+///
+/// [reference](https://nodejs.org/api/modules.html#all-together)
+fn load_index(path: &str) -> Result<String, ()> {
+    // NOTE: (@hahnlee) .hbc file has higher property
+    let hbc = format!("{}/index.hbc", path);
+    if PathBuf::from(&hbc).is_file() {
+        return Ok(hbc);
+    }
+
+    let js = format!("{}/index.js", path);
+    if PathBuf::from(&js).is_file() {
+        return Ok(js);
+    }
+
+    let json = format!("{}/index.json", path);
+    if PathBuf::from(&json).is_file() {
+        return Ok(json);
+    }
+
+    let node = format!("{}/index.node", path);
     if PathBuf::from(&node).is_file() {
         return Ok(node);
     }
