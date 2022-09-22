@@ -19,15 +19,21 @@ extern "C" {
         param_count: u32,
         cb: Option<Callback>,
         closure: *const libc::c_void,
-    ) -> *mut InternalFunction;
+    ) -> *const InternalFunction;
+    fn jsi__function_call(
+        function: *const InternalFunction,
+        runtime: *const libc::c_void,
+        args: *const *const Value,
+        count: usize,
+    ) -> *const Value;
 }
 
 #[repr(C)]
-struct InternalFunction(Opaque);
+pub struct InternalFunction(Opaque);
 
 #[repr(C)]
 #[derive(Debug)]
-pub struct Function(*mut InternalFunction);
+pub struct Function(*const InternalFunction);
 
 extern "C" fn c_callback(
     closure: *mut libc::c_void,
@@ -60,6 +66,10 @@ extern "C" fn c_callback(
 
 // TODO: (@hahnlee) provide high level bind API
 impl Function {
+    pub fn from_raw(ptr: *const InternalFunction) -> Function {
+        Function(ptr)
+    }
+
     pub fn from_host_function<T: Runtime, F>(
         runtime: &T,
         name: &str,
@@ -82,7 +92,7 @@ impl Function {
         > = Box::new(Box::new(closure));
 
         unsafe {
-            Function(jsi__function_create_from_host_function(
+            Function::from_raw(jsi__function_create_from_host_function(
                 &*runtime as *const _ as *const libc::c_void,
                 name.to_ptr(),
                 param_count,
@@ -90,6 +100,19 @@ impl Function {
                 Box::into_raw(cb) as *mut _ as *mut libc::c_void,
             ))
         }
+    }
+
+    pub fn call<'s, T: Runtime>(&self, runtime: &T, args: &[Local<Value>]) -> Local<'s, Value> {
+        let args = Local::slice_into_raw(args);
+        let value = unsafe {
+            Value::from_raw(jsi__function_call(
+                self.0,
+                &*runtime as *const _ as *const libc::c_void,
+                args.as_ptr(),
+                args.len(),
+            ))
+        };
+        return value;
     }
 
     pub fn to_ptr(&self) -> *const libc::c_void {
@@ -135,7 +158,7 @@ mod test {
 
         runtime
             .global()
-            .set_property::<HermesRuntime>(&runtime, "add", function.to_ptr());
+            .set_function::<HermesRuntime>(&runtime, "add", function);
 
         let output = runtime
             .evaluate_javascript::<StringBuffer>(StringBuffer::new("add(10, 20)").deref(), "");

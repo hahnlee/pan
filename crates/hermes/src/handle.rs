@@ -14,6 +14,10 @@ impl<'s, T> Local<'s, T> {
     pub(crate) unsafe fn from_non_null(nn: NonNull<T>) -> Self {
         Self(nn, PhantomData)
     }
+
+    pub(crate) fn slice_into_raw(slice: &[Self]) -> &[*const T] {
+        unsafe { &*(slice as *const [Self] as *const [*const T]) }
+    }
 }
 
 impl<'s, T> Copy for Local<'s, T> {}
