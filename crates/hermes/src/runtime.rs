@@ -140,7 +140,7 @@ mod tests {
     #[test]
     fn check_evaluate_buffer() {
         let runtime = OwnedHermesRuntime::new();
-        let bytes = "1 + 1".as_bytes();
+        let bytes = "1 + 1\0".as_bytes();
         let buffer = MemoryBuffer::from_bytes(bytes);
         let value = runtime.evaluate_javascript(&buffer, "test");
         assert_eq!(value.is_number(), true);
