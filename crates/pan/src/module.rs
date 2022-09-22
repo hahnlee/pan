@@ -14,6 +14,10 @@ use crate::runtime::PanRuntime;
 const MODULE_PREFIX: &[u8] = "(function(exports, module, __filename, __dirname) {".as_bytes();
 const MODULE_SUFFIX: &[u8] = "});".as_bytes();
 
+pub fn wrap_module_code(data: &[u8]) -> Vec<u8> {
+    [MODULE_PREFIX, data, MODULE_SUFFIX, &[0]].concat()
+}
+
 pub fn evaluate_module(
     runtime: &HermesRuntime,
     absolute_path: PathBuf,
@@ -21,7 +25,7 @@ pub fn evaluate_module(
 ) -> *const Value {
     let file = fs::read(&absolute_path).unwrap();
 
-    let data = [MODULE_PREFIX, &file, MODULE_SUFFIX, &[0]].concat();
+    let data = wrap_module_code(&file);
     let buffer = MemoryBuffer::from_bytes(&data);
 
     let parent = absolute_path
