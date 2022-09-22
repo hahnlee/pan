@@ -1,10 +1,12 @@
 use hermes::buffer::MemoryBuffer;
+use hermes::handle::Local;
 use hermes::jsi::function::Function;
 use hermes::jsi::object::Object;
 use hermes::jsi::runtime::Runtime;
 use hermes::jsi::value::Value;
 use hermes::runtime::HermesRuntime;
 
+use std::collections::HashMap;
 use std::fs;
 use std::ops::Deref;
 use std::path::PathBuf;
@@ -22,7 +24,18 @@ pub fn evaluate_module(
     runtime: &HermesRuntime,
     absolute_path: PathBuf,
     stack: &mut Vec<PathBuf>,
+    modules: &mut HashMap<String, Local<Value>>,
 ) -> *const Value {
+    let path = absolute_path.to_str().unwrap().to_string();
+    let cached = modules.get(&path);
+    if cached.is_some() {
+        return cached
+            .unwrap()
+            .as_object(runtime)
+            .get_property(runtime, "exports")
+            .deref();
+    }
+
     let file = fs::read(&absolute_path).unwrap();
 
     let data = wrap_module_code(&file);
@@ -34,7 +47,7 @@ pub fn evaluate_module(
         .to_str()
         .unwrap()
         .to_string();
-    let path = absolute_path.to_str().unwrap().to_string();
+
     let source_url = format!("file://{}", path);
 
     stack.push(absolute_path);
@@ -61,6 +74,10 @@ pub fn evaluate_module(
 
     stack.pop();
 
+    module.as_object(runtime).get_property(runtime, "exports");
+
+    modules.insert(path, module);
+
     return exports.deref();
 }
 
@@ -78,7 +95,7 @@ pub fn bind_require(pan: &mut PanRuntime) {
             let module_path = find_module_path(&current_path, &name).unwrap();
             let absolute_path = PathBuf::from(module_path).canonicalize().unwrap();
 
-            evaluate_module(&runtime, absolute_path, &mut pan.stack)
+            evaluate_module(&runtime, absolute_path, &mut pan.stack, &mut pan.modules)
         },
     );
 
