@@ -18,7 +18,6 @@ I was drawn to the hermes engine's features to compile JS to bytecode and run it
 - **Extremely unstable**
 - Support execute js/hbc files
 - Support the require function
-- Support **some** node core modules
 
 # Goals
 - **Compatibility with Node.js**
